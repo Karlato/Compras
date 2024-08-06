@@ -1,0 +1,101 @@
+﻿@model IEnumerable<Compras.Models.Entities.Articulo>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<style>
+    .table th, .table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+</style>
+
+<h1>Artículos</h1>
+
+<button id="Busqueda" class="btn btn-secondary mb-3">Buscar</button>
+
+<div id="searchForm" class="mb-3" style="display: none;">
+    <form asp-action="Buscar" method="get">
+        <div class="form-group">
+            <label for="articuloID">ID de Artículo</label>
+            <input type="number" class="form-control" id="articuloID" name="articuloID" />
+        </div>
+        <div class="form-group">
+            <label for="descripcion">Descripción</label>
+            <input type="text" class="form-control" id="descripcion" name="descripcion" />
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </form>
+</div>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Descripcion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Marca)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UnidadMedida)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Existencia)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Estado)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Descripcion)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Marca)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UnidadMedida.Descripcion)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Existencia)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Estado)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-warning">
+                    <i class="fas fa-pencil-alt"></i>
+                </a>
+                <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-info">
+                    <i class="fas fa-search"></i>
+                </a>
+                <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-danger">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        document.getElementById('Busqueda').addEventListener('click', function () {
+            var searchForm = document.getElementById('searchForm');
+            if (searchForm.style.display === 'none') {
+                searchForm.style.display = 'block';
+            } else {
+                searchForm.style.display = 'none';
+            }
+        });
+    </script>
+}

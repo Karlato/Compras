@@ -1,0 +1,91 @@
+﻿@model IEnumerable<Compras.Models.Entities.Orden>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<style>
+    .table th, .table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+</style>
+
+<h1>Órdenes</h1>
+
+<button id="Busqueda" class="btn btn-secondary mb-3">Buscar</button>
+
+<div id="searchForm" class="mb-3" style="display: none;">
+    <form asp-action="Index" method="get">
+        <div class="form-group">
+            <label for="numeroOrden">Número de Orden</label>
+            <input type="number" class="form-control" id="numeroOrden" name="numeroOrden" value="@ViewData["numeroOrden"]" />
+        </div>
+        <div class="form-group">
+            <label for="fechaOrden">Fecha de Orden</label>
+            <input type="date" class="form-control" id="fechaOrden" name="fechaOrden" value="@ViewData["fechaOrden"]" />
+        </div>
+        <div class="form-group">
+            <label for="articulo">Artículo</label>
+            <input type="text" class="form-control" id="articulo" name="articulo" value="@ViewData["articulo"]" />
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </form>
+</div>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Crear Nueva Orden</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.NumeroOrden)</th>
+            <th>@Html.DisplayNameFor(model => model.FechaOrden)</th>
+            <th>@Html.DisplayNameFor(model => model.Articulo.Descripcion)</th>
+            <th>@Html.DisplayNameFor(model => model.Cantidad)</th>
+            <th>@Html.DisplayNameFor(model => model.UnidadMedida.Descripcion)</th>
+            <th>@Html.DisplayNameFor(model => model.CostoUnitario)</th>
+            <th>@Html.DisplayNameFor(model => model.Estado)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.NumeroOrden)</td>
+                <td>@Html.DisplayFor(modelItem => item.FechaOrden)</td>
+                <td>@Html.DisplayFor(modelItem => item.Articulo.Descripcion)</td>
+                <td>@Html.DisplayFor(modelItem => item.Cantidad)</td>
+                <td>@Html.DisplayFor(modelItem => item.UnidadMedida.Descripcion)</td>
+                <td>@Html.DisplayFor(modelItem => item.CostoUnitario)</td>
+                <td>@Html.DisplayFor(modelItem => item.Estado)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.NumeroOrden" class="btn btn-warning">
+                        <i class="fas fa-pencil-alt"></i>
+                    </a>
+                    <a asp-action="Details" asp-route-id="@item.NumeroOrden" class="btn btn-info">
+                        <i class="fas fa-search"></i>
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@item.NumeroOrden" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        document.getElementById("Busqueda").addEventListener("click", function () {
+            var searchForm = document.getElementById("searchForm");
+            if (searchForm.style.display === "none") {
+                searchForm.style.display = "block";
+            } else {
+                searchForm.style.display = "none";
+            }
+        });
+    </script>
+}

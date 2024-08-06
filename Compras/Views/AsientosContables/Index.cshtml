@@ -1,0 +1,87 @@
+﻿@model IEnumerable<Compras.Models.Entities.AsientoContable>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<style>
+    .table th, .table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+</style>
+
+<h1>Asientos Contables</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.First().IdAuxiliarOrigen)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Descripcion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().CuentaDB)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().CuentaCR)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Monto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Fecha)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Estado)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IdAuxiliarOrigen)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Descripcion)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CuentaDB)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CuentaCR)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Monto)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Fecha)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Estado)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-info">
+                        <i class="fas fa-search"></i>
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
+                    <form asp-action="Contabilizar" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@item.ID" />
+                        <button type="submit" class="btn btn-success">Contabilizar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
