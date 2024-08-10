@@ -39,5 +39,7 @@ namespace Compras.Models.Entities
         [Range(0.00, double.MaxValue, ErrorMessage = "El costo unitario no puede ser menor a 0.")]
         [Display(Name = "Costo Unitario")]
         public decimal CostoUnitario { get; set; }
+
+        public string? AsientoContable { get; set; }
     }
 }

@@ -88,7 +88,8 @@ namespace Compras.Migrations
                     ArticuloID = table.Column<int>(type: "int", nullable: false),
                     Cantidad = table.Column<int>(type: "int", nullable: false),
                     MedidaID = table.Column<int>(type: "int", nullable: true),
-                    CostoUnitario = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    CostoUnitario = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AsientoContable = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -112,16 +113,12 @@ namespace Compras.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    IdAuxiliarOrigen = table.Column<int>(type: "int", nullable: true),
-                    IdCuenta = table.Column<int>(type: "int", nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    CuentaDB = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:CheckConstraint", "CuentaDB IN (0, 1)"),
-                    CuentaCR = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:CheckConstraint", "CuentaCR IN (0, 1)"),
-                    Monto = table.Column<float>(type: "float", nullable: false),
-                    Fecha = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Estado = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Descripcion = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    IdAuxiliar = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Cuenta_DB = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Cuenta_CR = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Monto = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Fecha = table.Column<DateTime>(type: "datetime", nullable: false)
                 },
                 constraints: table =>
                 {

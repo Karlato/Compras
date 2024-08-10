@@ -85,7 +85,9 @@ namespace Compras.Controllers
                 try
                 {
                     await _context.RealizarOrdenAsync(orden.FechaOrden, orden.ArticuloID, orden.Cantidad, orden.Estado, orden.CostoUnitario);
+                    await _context.SaveChangesAsync();
                     await _context.DisponibilidadArticulosAsync();
+
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)

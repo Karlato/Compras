@@ -22,12 +22,104 @@ namespace Compras.Controllers
             _context = context;
         }
 
-        // GET: AsientosContables
-        public async Task<IActionResult> Index()
+        // GET: AsientosContables/Index
+        public async Task<IActionResult> Index(DateTime? fechaInicio, DateTime? fechaFin)
         {
-            return View(await _context.AsientosContables.ToListAsync());
+            var asientos = _context.AsientosContables.AsQueryable();
+
+            if (fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                asientos = asientos.Where(a => a.Fecha >= fechaInicio.Value && a.Fecha <= fechaFin.Value);
+            }
+
+            var model = await asientos.ToListAsync();
+            return View(model);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Contabilizar(DateTime fechaInicio, DateTime fechaFin)
+        {
+            if (fechaFin < fechaInicio)
+            {
+                TempData["Resultado"] = "La fecha de fin debe ser mayor o igual a la fecha de inicio.";
+                return RedirectToAction("Index", new { fechaInicio, fechaFin });
+            }
+
+            try
+            {
+                decimal montoTotal = GetMontoTotal(fechaInicio, fechaFin);
+                string descripcion = $"Asiento de Compras correspondiente al periodo {GetPeriodoActual(fechaInicio)}";
+                string cuentaDB = "80";
+                string cuentaCR = "4";
+                string idAuxiliar = "7";
+
+                string result = await CallWebService(idAuxiliar, descripcion, cuentaDB, cuentaCR, montoTotal);
+
+                TempData["Resultado"] = $"Resultado del servicio: {result}";
+
+                var asientoContable = new AsientoContable
+                {
+                    Fecha = DateTime.Now,
+                    Descripcion = descripcion,
+                    Monto = montoTotal,
+                    Cuenta_DB = cuentaDB,
+                    Cuenta_CR = cuentaCR,
+                    IdAuxiliar = idAuxiliar
+                };
+
+                _context.AsientosContables.Add(asientoContable);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Index", new { fechaInicio, fechaFin });
+            }
+            catch (Exception ex)
+            {
+                TempData["Resultado"] = "Error al contabilizar: " + ex.Message;
+                return RedirectToAction("Index", new { fechaInicio, fechaFin });
+            }
+        }
+
+        private decimal GetMontoTotal(DateTime fechaInicio, DateTime fechaFin)
+        {
+            return _context.Ordenes
+                .Where(o => o.FechaOrden >= fechaInicio && o.FechaOrden <= fechaFin)
+                .Sum(o => o.CostoUnitario * o.Cantidad);
+        }
+
+        private string GetPeriodoActual(DateTime fechaInicio)
+        {
+            return fechaInicio.ToString("yyyy-MM");
+        }
+
+
+        private async Task<string> CallWebService(string idAuxiliar, string descripcion, string cuentaDB, string cuentaCR, decimal montoTotal)
+        {
+            var soapEnvelope = $@"
+    <soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>
+        <soap:Body>
+            <AsientoContable xmlns='http://tempuri.org/'>
+                <idAuxiliarOrigen>{idAuxiliar}</idAuxiliarOrigen>
+                <descripcion>{descripcion}</descripcion>
+                <cuentaDB>{cuentaDB}</cuentaDB>
+                <cuentaCR>{cuentaCR}</cuentaCR>
+                <monto>{montoTotal}</monto>
+            </AsientoContable>
+        </soap:Body>
+    </soap:Envelope>";
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("SOAPAction", "http://tempuri.org/AsientoContable");
+            var httpContent = new StringContent(soapEnvelope, Encoding.UTF8, "text/xml");
+            var response = await client.PostAsync("http://www.contabilidadws.somee.com/SSWS.asmx", httpContent);
+
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            var xdoc = XDocument.Parse(responseString);
+            var result = xdoc.Descendants(XName.Get("AsientoContableResult", "http://tempuri.org/")).FirstOrDefault()?.Value;
+
+            return result;
+        }
 
         // GET: AsientosContables/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -56,100 +148,13 @@ namespace Compras.Controllers
         // POST: AsientosContables/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FechaInicio,FechaFin,IdCuenta,Descripcion,CuentaDB,CuentaCR")] AsientoContable asientoContable)
+        public async Task<IActionResult> Create(AsientoContable asientoContable)
         {
             if (ModelState.IsValid)
             {
-                var montoTotal = await _context.Ordenes
-                    .Where(o => o.FechaOrden >= asientoContable.FechaInicio && o.FechaOrden <= asientoContable.FechaFin)
-                    .SumAsync(o => (double?)(o.CostoUnitario * o.Cantidad)) ?? 0.0;
-
-                asientoContable.Monto = montoTotal;
-                asientoContable.Descripcion = $"Asiento de Compras correspondiente al periodo {asientoContable.FechaInicio:yyyy-MM}";
-
                 _context.Add(asientoContable);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
-            return View(asientoContable);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Contabilizar(int id)
-        {
-            var asientoContable = await _context.AsientosContables.FindAsync(id);
-            if (asientoContable == null)
-            {
-                return NotFound();
-            }
-
-            var success = await CallWebService(asientoContable);
-
-            if (success)
-            {
-                asientoContable.Estado = "Contabilizado";
-                _context.Update(asientoContable);
-                await _context.SaveChangesAsync();
-
-                Debug.WriteLine($"AsientoContable with ID {asientoContable.ID} has been updated.");
-            }
-            else
-            {
-                Debug.WriteLine($"AsientoContable with ID {asientoContable.ID} could not be updated.");
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        private async Task<bool> CallWebService(AsientoContable asientoContable)
-        {
-            var soapEnvelope = $@"
-        <soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>
-          <soap:Body>
-            <AsientoContable xmlns='http://tempuri.org/'>
-              <idAuxiliarOrigen>{asientoContable.IdAuxiliarOrigen}</idAuxiliarOrigen>
-              <descripcion>{asientoContable.Descripcion}</descripcion>
-              <cuentaDB>{asientoContable.CuentaDB}</cuentaDB>
-              <cuentaCR>{asientoContable.CuentaCR}</cuentaCR>
-              <monto>{asientoContable.Monto}</monto>
-            </AsientoContable>
-          </soap:Body>
-        </soap:Envelope>";
-
-            var httpContent = new StringContent(soapEnvelope, Encoding.UTF8, "text/xml");
-
-            using var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("SOAPAction", "http://tempuri.org/AsientoContable");
-            var response = await client.PostAsync("http://www.contabilidadws.somee.com/SSWS.asmx", httpContent);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var responseXml = await response.Content.ReadAsStringAsync();
-                var xdoc = XDocument.Parse(responseXml);
-                var ns = xdoc.Root.GetDefaultNamespace();
-
-                asientoContable.Fecha = DateTime.Parse(xdoc.Descendants(ns + "Fecha").FirstOrDefault()?.Value);
-                asientoContable.Estado = xdoc.Descendants(ns + "Estado").FirstOrDefault()?.Value;
-
-                return true;
-            }
-
-            return false;
-        }
-
-    // GET: AsientosContables/Edit/5
-    public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var asientoContable = await _context.AsientosContables.FindAsync(id);
-            if (asientoContable == null)
-            {
-                return NotFound();
             }
             return View(asientoContable);
         }
@@ -173,7 +178,7 @@ namespace Compras.Controllers
         }
 
         // POST: AsientosContables/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {

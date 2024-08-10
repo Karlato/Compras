@@ -1,0 +1,49 @@
+﻿@model Compras.Models.Entities.AsientoContable
+
+@{
+    ViewData["Title"] = "Contabilizar Asiento";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Contabilizar" method="post">
+    <div class="form-group">
+        <label asp-for="Descripcion" class="control-label"></label>
+        <input asp-for="Descripcion" class="form-control" />
+        <span asp-validation-for="Descripcion" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IdAuxiliar" class="control-label"></label>
+        <input asp-for="IdAuxiliar" class="form-control" />
+        <span asp-validation-for="IdAuxiliar" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Cuenta_DB" class="control-label"></label>
+        <input asp-for="Cuenta_DB" class="form-control" />
+        <span asp-validation-for="Cuenta_DB" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Cuenta_CR" class="control-label"></label>
+        <input asp-for="Cuenta_CR" class="form-control" />
+        <span asp-validation-for="Cuenta_CR" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Monto" class="control-label"></label>
+        <input asp-for="Monto" class="form-control" />
+        <span asp-validation-for="Monto" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Fecha" class="control-label"></label>
+        <input asp-for="Fecha" class="form-control" type="date" />
+        <span asp-validation-for="Fecha" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+</form>

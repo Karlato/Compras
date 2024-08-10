@@ -5,23 +5,8 @@ namespace Compras.Models.Entities
 {
     public class AsientoContableView
     {
-        [Required]
-        public DateTime FechaInicio { get; set; }
-
-        [Required]
-        public DateTime FechaFin { get; set; }
-
-        [Required]
-        public int IdCuenta { get; set; }
-        [Required]
-        public string Descripcion { get; set; }
-
-        [Required]
-        public int CuentaDB { get; set; }
-
-        [Required]
-        public int CuentaCR { get; set; }
-        [Required]
-        public double Monto { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+        public List<AsientoContable> AsientosContables { get; set; } = new List<AsientoContable>();
     }
 }

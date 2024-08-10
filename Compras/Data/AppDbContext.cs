@@ -5,7 +5,7 @@ using System.Data;
 
 namespace Compras.Data
 {
-    public class AppDbContext: DbContext
+    public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -45,7 +45,7 @@ namespace Compras.Data
 
             modelBuilder.Entity<AsientoContable>()
                 .Property(a => a.Monto)
-                .HasColumnType("float");
+                .HasColumnType("decimal(18, 2)");
 
             base.OnModelCreating(modelBuilder);
         }

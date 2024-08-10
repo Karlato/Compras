@@ -7,37 +7,33 @@ namespace Compras.Models.Entities
     {
         [Key]
         public int ID { get; set; }
-        [Display(Name = "IdAuxiliar")]
-        public int? IdAuxiliarOrigen { get; set; }
-        [Required]
-        [Display(Name = "IdCuenta")]
-        public int IdCuenta { get; set; }
-        [Required]
         [MaxLength(255)]
+        [Display(Name = "Descripción")]
         public string Descripcion { get; set; }
+
         [Required]
-        [Range(0, 1, ErrorMessage = "El valor de {0} debe ser 0 o 1.")]
+        [MaxLength(50)]
+        [Display(Name = "Identificador Auxiliar")]
+        public string? IdAuxiliar { get; set; }
+
+        [Required]
+        [MaxLength(50)]
         [Display(Name = "Cuenta DB")]
-        public int? CuentaDB { get; set; }
+        public string? Cuenta_DB { get; set; }
+
         [Required]
-        [Range(0, 1, ErrorMessage = "El valor de {0} debe ser 0 o 1.")]
+        [MaxLength(50)]
         [Display(Name = "Cuenta CR")]
-        public int? CuentaCR { get; set; }
+        public string? Cuenta_CR { get; set; }
+
         [Required]
-        [Column(TypeName = "float")]
+        [Column(TypeName = "decimal(18, 2)")]
         [Display(Name = "Monto")]
-        public double Monto { get; set; }
+        public decimal Monto { get; set; }
+
+        [Required]
         [Column(TypeName = "datetime")]
         [Display(Name = "Fecha")]
-        public DateTime? Fecha { get; set; }
-        public string? Estado { get; set; }
-
-        [NotMapped]
-        [DataType(DataType.Date)]
-        public DateTime FechaInicio { get; set; }
-
-        [NotMapped]
-        [DataType(DataType.Date)]
-        public DateTime FechaFin { get; set; }
+        public DateTime Fecha { get; set; }
     }
 }
